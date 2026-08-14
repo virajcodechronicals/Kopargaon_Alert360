@@ -109,73 +109,67 @@ const DEFAULT_CONTACTS = [
   { role: 'Rural / Sub-District Hospital', name: 'SDH Kopargaon Medical Officer', phone: '02423-222233' }
 ];
 
-// Pre-seed demo users
-(async () => {
-  try {
-    const hashCitizen = await bcrypt.hash("citizen123", 10);
-    const hashDemo = await bcrypt.hash("demo123", 10);
-    const hashViraj = await bcrypt.hash("viraj123", 10);
-    const hash8080 = await bcrypt.hash("8080846924", 10);
-    const hashAdmin123 = await bcrypt.hash("admin123", 10);
-    const hashAdmin = await bcrypt.hash("admin", 10);
-    const hashAuthority = await bcrypt.hash("authority123", 10);
+// Pre-seeded demo user credentials (synchronously initialized for serverless cold-start readiness)
+const hashCitizen = bcrypt.hashSync("citizen123", 10);
+const hashDemo = bcrypt.hashSync("demo123", 10);
+const hashViraj = bcrypt.hashSync("viraj123", 10);
+const hash8080 = bcrypt.hashSync("8080846924", 10);
+const hashAdmin123 = bcrypt.hashSync("admin123", 10);
+const hashAdmin = bcrypt.hashSync("admin", 10);
+const hashAuthority = bcrypt.hashSync("authority123", 10);
 
-    LOCAL_CITIZENS.set("citizen", {
-      id: "citizen-demo-1",
-      name: "Kopargaon Citizen",
-      username: "citizen",
-      password_hash: hashCitizen,
-      created_at: new Date().toISOString()
-    });
+LOCAL_CITIZENS.set("citizen", {
+  id: "citizen-demo-1",
+  name: "Kopargaon Citizen",
+  username: "citizen",
+  password_hash: hashCitizen,
+  created_at: new Date().toISOString()
+});
 
-    LOCAL_CITIZENS.set("demo", {
-      id: "citizen-demo-2",
-      name: "Demo Citizen",
-      username: "demo",
-      password_hash: hashDemo,
-      created_at: new Date().toISOString()
-    });
+LOCAL_CITIZENS.set("demo", {
+  id: "citizen-demo-2",
+  name: "Demo Citizen",
+  username: "demo",
+  password_hash: hashDemo,
+  created_at: new Date().toISOString()
+});
 
-    LOCAL_CITIZENS.set("viraj", {
-      id: "citizen-viraj",
-      name: "Viraj Chitte",
-      username: "viraj",
-      password_hash: hashViraj,
-      created_at: new Date().toISOString()
-    });
+LOCAL_CITIZENS.set("viraj", {
+  id: "citizen-viraj",
+  name: "Viraj Chitte",
+  username: "viraj",
+  password_hash: hashViraj,
+  created_at: new Date().toISOString()
+});
 
-    // Authority accounts
-    LOCAL_AUTHORITIES.set("virajchitte7116@gmail.com", {
-      id: "auth-viraj",
-      name: "SDM Kopargaon HQ (Viraj Chitte)",
-      email: "virajchitte7116@gmail.com",
-      password_hashes: [hash8080, hashAdmin123]
-    });
+// Authority accounts
+LOCAL_AUTHORITIES.set("virajchitte7116@gmail.com", {
+  id: "auth-viraj",
+  name: "SDM Kopargaon HQ (Viraj Chitte)",
+  email: "virajchitte7116@gmail.com",
+  password_hashes: [hash8080, hashAdmin123]
+});
 
-    LOCAL_AUTHORITIES.set("admin@kopargaon.gov.in", {
-      id: "auth-admin-gov",
-      name: "Sub-Divisional Magistrate SDM Kopargaon",
-      email: "admin@kopargaon.gov.in",
-      password_hashes: [hashAdmin123, hash8080]
-    });
+LOCAL_AUTHORITIES.set("admin@kopargaon.gov.in", {
+  id: "auth-admin-gov",
+  name: "Sub-Divisional Magistrate SDM Kopargaon",
+  email: "admin@kopargaon.gov.in",
+  password_hashes: [hashAdmin123, hash8080]
+});
 
-    LOCAL_AUTHORITIES.set("admin", {
-      id: "auth-admin",
-      name: "SDM Kopargaon HQ",
-      email: "admin",
-      password_hashes: [hashAdmin123, hashAdmin, hash8080]
-    });
+LOCAL_AUTHORITIES.set("admin", {
+  id: "auth-admin",
+  name: "SDM Kopargaon HQ",
+  email: "admin",
+  password_hashes: [hashAdmin123, hashAdmin, hash8080]
+});
 
-    LOCAL_AUTHORITIES.set("authority@kopargaon.gov.in", {
-      id: "auth-cell",
-      name: "Kopargaon Disaster Response Cell",
-      email: "authority@kopargaon.gov.in",
-      password_hashes: [hashAuthority, hashAdmin123]
-    });
-  } catch (seedErr) {
-    console.error("Local user seeding error:", seedErr);
-  }
-})();
+LOCAL_AUTHORITIES.set("authority@kopargaon.gov.in", {
+  id: "auth-cell",
+  name: "Kopargaon Disaster Response Cell",
+  email: "authority@kopargaon.gov.in",
+  password_hashes: [hashAuthority, hashAdmin123]
+});
 
 // --- JWT Authentication Middleware ---
 const authenticateToken = (req, res, next) => {
