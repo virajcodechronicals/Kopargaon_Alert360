@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { HazardType, RiskPrediction } from '../types';
 import { HAZARD_PALETTES } from './HazardPalettes';
 import { SpeechEngine } from '../utils/speech';
+import { safeFetchJson } from '../utils/api';
 
 interface AIAssistantSheetProps {
   onClose: () => void;
@@ -96,9 +97,8 @@ export const AIAssistantSheet: React.FC<AIAssistantSheetProps> = ({
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ask-assistant', {
+      const result = await safeFetchJson('/api/ask-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: q,
           messages: messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'model', content: m.text })),
@@ -108,8 +108,8 @@ export const AIAssistantSheet: React.FC<AIAssistantSheetProps> = ({
         })
       });
 
-      if (!res.ok) throw new Error('Failed to get response');
-      const data = await res.json();
+      if (!result.ok) throw new Error(result.error || 'Failed to get response');
+      const data = result.data || {};
       
       const responseTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + ' IST';
       const aiMsg: Message = {

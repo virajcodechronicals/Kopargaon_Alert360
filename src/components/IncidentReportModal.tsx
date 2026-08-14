@@ -4,6 +4,7 @@ import { HazardType, RiskLevel } from '../types';
 import { HAZARD_PALETTES } from './HazardPalettes';
 import { store } from '../store';
 import { useAuth } from './Auth';
+import { safeFetchJson } from '../utils/api';
 
 interface IncidentReportModalProps {
   onClose: () => void;
@@ -140,27 +141,20 @@ export const IncidentReportModal: React.FC<IncidentReportModalProps> = ({ onClos
       if (photo) {
         // Upload photo via backend upload endpoint
         const token = await store.getToken();
-        const upRes = await fetch('/api/v1/upload-photo', {
+        const upRes = await safeFetchJson('/api/v1/upload-photo', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: JSON.stringify({ image: photo })
         });
-        if (upRes.ok) {
-          const upData = await upRes.json();
-          photo_url = upData.url;
+        if (upRes.ok && upRes.data?.url) {
+          photo_url = upRes.data.url;
         }
       }
 
       const token = await store.getToken();
-      const res = await fetch('/api/v1/incidents', {
+      const res = await safeFetchJson('/api/v1/incidents', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: JSON.stringify({
           hazard,
           severity,
@@ -171,9 +165,8 @@ export const IncidentReportModal: React.FC<IncidentReportModalProps> = ({ onClos
         })
       });
 
-      if (res.ok) {
-        const resData = await res.json();
-        onSuccess(resData.incident || newIncident);
+      if (res.ok && res.data) {
+        onSuccess(res.data.incident || newIncident);
       } else {
         onSuccess(newIncident);
       }

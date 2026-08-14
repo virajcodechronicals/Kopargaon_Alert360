@@ -4,6 +4,7 @@ import { useAuth } from './Auth';
 import { HazardType, RiskLevel, Shelter } from '../types';
 import { HAZARD_PALETTES, getHazardTonalStyle } from './HazardPalettes';
 import { store } from '../store';
+import { safeFetchJson } from '../utils/api';
 
 type AuthorityTab = 'overview' | 'flood' | 'drought' | 'heatwave' | 'unseasonal' | 'incidents' | 'alerts' | 'analytics';
 
@@ -51,12 +52,9 @@ export const AuthorityDashboard = () => {
     setLoading(true);
     try {
       const token = await store.getToken();
-      const res = await fetch('/api/v1/alerts/broadcast', {
+      const res = await safeFetchJson('/api/v1/alerts/broadcast', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: JSON.stringify({
           hazard: broadcastHazard,
           severity: broadcastSeverity,
@@ -67,8 +65,7 @@ export const AuthorityDashboard = () => {
       });
 
       if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Broadcast failed');
+        throw new Error(res.error || 'Broadcast failed');
       }
 
       showToast('CAP Alert broadcast dispatched across SMS, FCM & Sirens!');
@@ -84,16 +81,14 @@ export const AuthorityDashboard = () => {
   const handleToggleReadOnly = async () => {
     try {
       const token = await store.getToken();
-      const res = await fetch('/api/v1/admin/toggle-read-only', {
+      const res = await safeFetchJson('/api/v1/admin/toggle-read-only', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      const data = await res.json();
-      setIsReadOnly(data.read_only);
-      showToast(`Emergency Read-Only Mode: ${data.read_only ? 'ACTIVE' : 'DISABLED'}`);
+      if (res.ok && res.data) {
+        setIsReadOnly(res.data.read_only);
+        showToast(`Emergency Read-Only Mode: ${res.data.read_only ? 'ACTIVE' : 'DISABLED'}`);
+      }
     } catch (e: any) {
       showToast('Toggle failed: ' + e.message);
     }

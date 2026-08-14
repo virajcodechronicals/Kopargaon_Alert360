@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
 import { store } from '../store';
 import { Eye, EyeOff } from 'lucide-react';
+import { safeFetchJson } from '../utils/api';
 
 export function decodeJwtPayload(token: string): any {
   if (!token || typeof token !== 'string') return null;
@@ -170,28 +171,20 @@ const CitizenAuth = ({ login, onGuest }: { login: (t: string) => void, onGuest: 
       const endpoint = tab === 'signup' ? '/api/v1/auth/citizen/signup' : '/api/v1/auth/citizen/login';
       const body = tab === 'signup' ? { name: name.trim(), username: username.trim(), password } : { username: username.trim(), password };
       
-      const res = await fetch(endpoint, {
+      const result = await safeFetchJson(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
       
-      let data: any = {};
-      try {
-        data = await res.json();
-      } catch (jsonErr) {
-        throw new Error('Unable to parse server response. Please try again.');
+      if (!result.ok) {
+        throw new Error(result.error || 'Authentication failed');
       }
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Authentication failed');
-      }
-
-      if (!data.token) {
+      if (!result.data?.token) {
         throw new Error('No authentication token received from server');
       }
 
-      login(data.token);
+      login(result.data.token);
     } catch (err: any) {
       setError(err.message || 'Unable to connect to login service');
     } finally {
@@ -315,20 +308,14 @@ const AuthorityAuth = ({ login, onBack }: { login: (t: string) => void, onBack: 
     if (!email || !password || !mfa) return setError('Please enter official email, password, and MFA code');
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/auth/authority/login', {
+      const result = await safeFetchJson('/api/v1/auth/authority/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password: password.trim(), mfaCode: mfa.trim() })
       });
-      let data: any = {};
-      try {
-        data = await res.json();
-      } catch (jsonErr) {
-        throw new Error('Unable to parse server response. Please try again.');
-      }
-      if (!res.ok) throw new Error(data.error || 'Official authentication failed');
-      if (!data.token) throw new Error('No authentication token received from server');
-      login(data.token);
+      
+      if (!result.ok) throw new Error(result.error || 'Official authentication failed');
+      if (!result.data?.token) throw new Error('No authentication token received from server');
+      login(result.data.token);
     } catch (err: any) {
       setError(err.message || 'Failed to authenticate official credentials');
     } finally {
