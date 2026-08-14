@@ -1,11 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": "/api/index.cjs"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
