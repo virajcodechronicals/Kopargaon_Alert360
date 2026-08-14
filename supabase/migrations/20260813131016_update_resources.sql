@@ -1,0 +1,2 @@
+ALTER TABLE resources ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'standby';
+ALTER TABLE resources ADD COLUMN IF NOT EXISTS zone_id UUID REFERENCES zones(id);

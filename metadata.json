@@ -1,0 +1,6 @@
+{
+  "name": "Kopargaon Alert",
+  "description": "Localized multi-hazard early warning and disaster response web platform for Kopargaon Taluka, Maharashtra",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

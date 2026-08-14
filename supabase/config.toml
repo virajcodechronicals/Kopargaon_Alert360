@@ -1,0 +1,14 @@
+project_id = "kopargaon-disaster-sys"
+
+[api]
+enabled = true
+port = 54321
+max_rows = 1000
+
+[functions]
+# Defines Edge Functions for real-time broadcast and AI inference KPIs
+[functions.broadcast-alert]
+verify_jwt = false
+
+[functions.ai-inference]
+verify_jwt = false
